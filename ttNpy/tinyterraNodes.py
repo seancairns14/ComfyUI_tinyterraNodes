@@ -3550,6 +3550,70 @@ class ttN_modelScale:
 
         return {"ui": {"images": results}, 
                 "result": ({"samples":t}, s,)}
+    
+
+
+class RepeaterKSampler(ttN_pipeKSampler_v2):
+    """
+    A node that takes a list of pipes and runs the sample method on each.
+    """
+
+    def __init__(self):
+        super().__init__()  # Initialize the parent class
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        # Call the parent class's INPUT_TYPES method to get existing inputs
+        parent_input_types = super().INPUT_TYPES()
+        
+        # Define the input to accept a list of pipes
+        additional_inputs = {
+            "required": {
+                "pipes": (["PIPE_LINE"],),  # Accepts a list of PIPE_LINE objects
+            }
+        }
+
+        # Merge the parent input types with the additional input
+        merged_inputs = {
+            "required": {**parent_input_types.get("required", {}), **additional_inputs.get("required", {})},
+            "optional": {**parent_input_types.get("optional", {})},
+            "hidden": {**parent_input_types.get("hidden", {})},
+        }
+
+        return merged_inputs
+
+    RETURN_TYPES = ("PIPE_LINE",)  # Output type is a list of PIPE_LINE objects
+    RETURN_NAMES = ("pipes",)  # Name of the output
+    FUNCTION = "sample"
+
+    def sample(self, pipes, lora_name, lora_strength, steps, cfg, sampler_name, scheduler, image_output, 
+               save_prefix, file_type, embed_workflow, denoise=1.0, optional_model=None, optional_positive=None, 
+               optional_negative=None, optional_latent=None, optional_vae=None, optional_clip=None, 
+               input_image_override=None, seed=None, adv_xyPlot=None, upscale_model_name=None, upscale_method=None, 
+               factor=None, rescale=None, percent=None, width=None, height=None, longer_side=None, crop=None, 
+               prompt=None, extra_pnginfo=None, my_unique_id=None, start_step=None, last_step=None, 
+               force_full_denoise=False, disable_noise=False):
+        
+        # Check if the input is indeed a list of pipes
+        if not isinstance(pipes, list):
+            raise ValueError("Expected a list of PIPE_LINE objects.")
+
+        # Process each pipe using the parent class's sample method
+        results = []
+        for pipe in pipes:
+            # Call the parent class's sample method on each pipe
+            result = super().sample(
+                pipe, lora_name, lora_strength, steps, cfg, sampler_name, scheduler, image_output, save_prefix, 
+                file_type, embed_workflow, denoise, optional_model, optional_positive, optional_negative, 
+                optional_latent, optional_vae, optional_clip, input_image_override, seed, adv_xyPlot, upscale_model_name, 
+                upscale_method, factor, rescale, percent, width, height, longer_side, crop, prompt, extra_pnginfo, 
+                my_unique_id, start_step, last_step, force_full_denoise, disable_noise
+            )
+            results.append(result)
+        
+        # Return the list of processed pipes
+        return results
+
 
 #---------------------------------------------------------------ttN/image END-----------------------------------------------------------------------#
 
@@ -3602,6 +3666,7 @@ NODE_CLASS_MAPPINGS = {
     "ttN pipeLoaderSDXL_v2": ttN_pipeLoaderSDXL_v2,
     "ttN pipeKSamplerSDXL_v2": ttN_pipeKSamplerSDXL_v2,
     "ttN advanced xyPlot": ttN_advanced_XYPlot,
+    "RepeaterKSampler": RepeaterKSampler,
 #   "ttN advPlot merge": ttN_advPlot_merge,
     "ttN advPlot range": ttN_advPlot_range,
     "ttN advPlot string": ttN_advPlot_string,
@@ -3652,6 +3717,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ttN pipe2DETAILER": "pipe > detailer_pipe",
     "ttN pipeEncodeConcat": "pipeEncodeConcat",
     "ttN pipeLoraStack": "pipeLoraStack",
+    "RepeaterKSampler": "Repeater_KSampler_Node",
 
     #ttN/xyPlot
     "ttN advanced xyPlot": "advanced xyPlot",
