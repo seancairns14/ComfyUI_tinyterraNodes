@@ -23,6 +23,7 @@ from pathlib import Path
 from urllib.request import urlopen
 from collections import OrderedDict
 from typing import Dict, List, Optional, Tuple, Union, Any
+import ast
 
 import numpy as np
 import torch
@@ -3551,11 +3552,103 @@ class ttN_modelScale:
         return {"ui": {"images": results}, 
                 "result": ({"samples":t}, s,)}
     
+class ttN_pipe_IN_text:
+    version = '1.1.0'
+    
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": ("MODEL",),
+                "pos": ("CONDITIONING",),
+                "neg": ("CONDITIONING",),
+                "latent": ("LATENT",),
+                "vae": ("VAE",),
+                "clip": ("CLIP",),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                "text": ("STRING",),
+            },
+            "optional": {
+                "image": ("IMAGE",),
+            },
+            "hidden": {"ttNnodeVersion": ttN_pipe_IN_text.version},
+        }
+
+    RETURN_TYPES = ("PIPE_LINE_TEXT", )
+    RETURN_NAMES = ("pipe", )
+    FUNCTION = "flush"
+
+    CATEGORY = "🌏 tinyterra/legacy"
+
+    def flush(self, model, pos=0, neg=0, latent=0, vae=0, clip=0, image=0, seed=0, text=""):
+        # Create the pipeline dictionary to store all components
+        pipe = {
+            "model": model,
+            "positive": pos,
+            "negative": neg,
+            "vae": vae,
+            "clip": clip,
+
+            "refiner_model": None,  # Placeholder for potential refinement
+            "refiner_positive": None,
+            "refiner_negative": None,
+            "refiner_vae": None,
+            "refiner_clip": None,
+
+            "samples": latent,
+            "images": image,
+            "seed": seed,
+            "text": text,
+
+            "loader_settings": {}
+        }
+        return (pipe, )
+
+
+class ttN_pipe_OUT_text:
+    version = '1.1.0'
+    
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "pipe": ("PIPE_LINE_TEXT",),
+            },
+            "hidden": {"ttNnodeVersion": ttN_pipe_OUT_text.version},
+        }
+
+    RETURN_TYPES = ("MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "IMAGE", "INT", "STRING", "PIPE_LINE_TEXT",)
+    RETURN_NAMES = ("model", "pos", "neg", "latent", "vae", "clip", "image", "seed", "text", "pipe")
+    FUNCTION = "flush"
+
+    CATEGORY = "🌏 tinyterra/legacy"
+    
+    def flush(self, pipe):
+        # Retrieve values from the pipe, using default values to avoid KeyErrors
+        model = pipe.get("model", None)
+        pos = pipe.get("positive", None)
+        neg = pipe.get("negative", None)
+        latent = pipe.get("samples", None)
+        vae = pipe.get("vae", None)
+        clip = pipe.get("clip", None)
+        image = pipe.get("images", None)
+        seed = pipe.get("seed", 0)
+        text = pipe.get("text", "")
+
+        # Return all components, including the full pipe object
+        return model, pos, neg, latent, vae, clip, image, seed, text, pipe
+
 
 
 class RepeaterKSampler(ttN_pipeKSampler_v2):
     """
-    A node that takes a list of pipes and runs the sample method on each.
+    A node that takes a list of PIPE_LINE_TEXT and runs the sample method on each.
     """
 
     def __init__(self):
@@ -3565,11 +3658,12 @@ class RepeaterKSampler(ttN_pipeKSampler_v2):
     def INPUT_TYPES(cls):
         # Call the parent class's INPUT_TYPES method to get existing inputs
         parent_input_types = super().INPUT_TYPES()
-        
-        # Define the input to accept a list of pipes
+
+        # Define the input to accept a list of PIPE_LINE_TEXT and the new text list input
         additional_inputs = {
             "required": {
-                "pipes": (["PIPE_LINE"],),  # Accepts a list of PIPE_LINE objects
+                "pipes": ("PIPE_LINE_TEXT",),  # Accepts a list of PIPE_LINE_TEXT objects
+                "text_list": ("STRING", {"multiline": True, "placeholder": 'Enter list of strings like ["text1", "text2, text3", ...]'}),  # Add text list input
             }
         }
 
@@ -3582,37 +3676,66 @@ class RepeaterKSampler(ttN_pipeKSampler_v2):
 
         return merged_inputs
 
-    RETURN_TYPES = ("PIPE_LINE",)  # Output type is a list of PIPE_LINE objects
-    RETURN_NAMES = ("pipes",)  # Name of the output
+    RETURN_TYPES = ("PIPE_LINE_TEXT", "STRING",)  # Output type is PIPE_LINE_TEXT
+    RETURN_NAMES = ("pipes", "text")  # Name of the output
     FUNCTION = "sample"
+    OUTPUT_IS_LIST = (True)
+    INPUT_IS_LIST = (False, True)
 
-    def sample(self, pipes, lora_name, lora_strength, steps, cfg, sampler_name, scheduler, image_output, 
+    def sample(self, pipes, text_list, lora_name, lora_strength, steps, cfg, sampler_name, scheduler, image_output, 
                save_prefix, file_type, embed_workflow, denoise=1.0, optional_model=None, optional_positive=None, 
                optional_negative=None, optional_latent=None, optional_vae=None, optional_clip=None, 
                input_image_override=None, seed=None, adv_xyPlot=None, upscale_model_name=None, upscale_method=None, 
                factor=None, rescale=None, percent=None, width=None, height=None, longer_side=None, crop=None, 
                prompt=None, extra_pnginfo=None, my_unique_id=None, start_step=None, last_step=None, 
                force_full_denoise=False, disable_noise=False):
-        
-        # Check if the input is indeed a list of pipes
-        if not isinstance(pipes, list):
-            raise ValueError("Expected a list of PIPE_LINE objects.")
 
-        # Process each pipe using the parent class's sample method
-        results = []
-        for pipe in pipes:
-            # Call the parent class's sample method on each pipe
-            result = super().sample(
-                pipe, lora_name, lora_strength, steps, cfg, sampler_name, scheduler, image_output, save_prefix, 
-                file_type, embed_workflow, denoise, optional_model, optional_positive, optional_negative, 
-                optional_latent, optional_vae, optional_clip, input_image_override, seed, adv_xyPlot, upscale_model_name, 
-                upscale_method, factor, rescale, percent, width, height, longer_side, crop, prompt, extra_pnginfo, 
-                my_unique_id, start_step, last_step, force_full_denoise, disable_noise
-            )
-            results.append(result)
+        # Check if the input is a list of pipes
+        if not isinstance(pipes, list):
+            pipes = [pipes]
         
+        # Safely evaluate the text_list to convert it into a Python list of strings (including strings with commas)
+        try:
+            text_items = ast.literal_eval(text_list)
+            if not isinstance(text_items, list):
+                raise ValueError("The input text_list must be a list of strings.")
+        except (SyntaxError, ValueError):
+            raise ValueError('Invalid input format. Please enter a valid list of strings like ["text1", "text2, text3", ...]')
+        
+        results = []
+        text_results = []
+
+        # Iterate over pipes and text items
+        for pipe in pipes:
+            for t in text_items:
+                # Extract necessary components from the pipe
+                model = pipe.get("model", optional_model)
+                positive = pipe.get("positive", optional_positive)
+                negative = pipe.get("negative", optional_negative)
+                latent = pipe.get("samples", optional_latent)
+                vae = pipe.get("vae", optional_vae)
+                clip = pipe.get("clip", optional_clip)
+                seed_val = pipe.get("seed", seed)
+                text = pipe.get("text", text)
+
+                text = text + t
+
+                # Call the parent class's sample method
+                result = super().sample(
+                    model, lora_name, lora_strength, steps, cfg, sampler_name, scheduler, image_output, save_prefix, 
+                    file_type, embed_workflow, denoise, model, positive, negative, latent, vae, clip, input_image_override, 
+                    seed_val, adv_xyPlot, upscale_model_name, upscale_method, factor, rescale, percent, width, height, 
+                    longer_side, crop, prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id, 
+                    start_step=start_step, last_step=last_step, force_full_denoise=force_full_denoise, 
+                    disable_noise=disable_noise
+                )
+                
+                # Append each result to the results list
+                results.append(result)
+                text_results.append(text)
+
         # Return the list of processed pipes
-        return results
+        return results, text_results
 
 
 #---------------------------------------------------------------ttN/image END-----------------------------------------------------------------------#
@@ -3666,7 +3789,10 @@ NODE_CLASS_MAPPINGS = {
     "ttN pipeLoaderSDXL_v2": ttN_pipeLoaderSDXL_v2,
     "ttN pipeKSamplerSDXL_v2": ttN_pipeKSamplerSDXL_v2,
     "ttN advanced xyPlot": ttN_advanced_XYPlot,
+    "ttN PipeInText": ttN_pipe_IN_text,
+    "ttN PipeOutText": ttN_pipe_OUT_text,
     "RepeaterKSampler": RepeaterKSampler,
+
 #   "ttN advPlot merge": ttN_advPlot_merge,
     "ttN advPlot range": ttN_advPlot_range,
     "ttN advPlot string": ttN_advPlot_string,
@@ -3717,6 +3843,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ttN pipe2DETAILER": "pipe > detailer_pipe",
     "ttN pipeEncodeConcat": "pipeEncodeConcat",
     "ttN pipeLoraStack": "pipeLoraStack",
+    "ttN PipeInText": "PipeInText",
+    "ttN PipeOutText": "PipeOutText",
     "RepeaterKSampler": "Repeater_KSampler_Node",
 
     #ttN/xyPlot
