@@ -3676,11 +3676,12 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
 
         return merged_inputs
 
-    RETURN_TYPES = ("STRING",)  # Return a string for simplicity
-    RETURN_NAMES = ("text_output",)  # Name of the output
+    RETURN_TYPES = ("PIPE_LINE_TEXT", "STRING",)  # Output type is PIPE_LINE_TEXT
+    RETURN_NAMES = ("pipes", "text")  # Name of the output
+    FUNCTION = "sample"
     FUNCTION = "process_text"
 
-    def process_text(self, text_input):
+    def sample(self, text_input):
         """
         A simple method that returns the input text as output.
         """
