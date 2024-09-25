@@ -3656,21 +3656,22 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
 
     @classmethod
     def INPUT_TYPES(cls):
-        # Inherit input types from the parent class
+        # Call the parent class's INPUT_TYPES method to get existing inputs
         parent_input_types = super().INPUT_TYPES()
 
-        # Define basic inputs for testing
+        # Define the input to accept a list of PIPE_LINE_TEXT and the new text list input
         additional_inputs = {
             "required": {
-                "text_input": ("STRING", {"multiline": False, "placeholder": 'Enter a string'}),  # Simple string input
+                "pipes": ("PIPE_LINE_TEXT",),  # Accepts a list of PIPE_LINE_TEXT objects
+                "text_list": ("STRING", {"multiline": True, "placeholder": 'Enter list of strings like ["text1", "text2, text3", ...]'}),  # Add text list input
             }
         }
 
-        # Merge parent input types with the additional input
+        # Merge the parent input types with the additional input
         merged_inputs = {
             "required": {**parent_input_types.get("required", {}), **additional_inputs.get("required", {})},
-            "optional": parent_input_types.get("optional", {}),
-            "hidden": parent_input_types.get("hidden", {}),
+            "optional": {**parent_input_types.get("optional", {})},
+            "hidden": {**parent_input_types.get("hidden", {})},
         }
 
         return merged_inputs
