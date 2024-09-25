@@ -3648,95 +3648,42 @@ class ttN_pipe_OUT_text:
 
 class KsampleRepeat(ttN_pipeKSampler_v2):
     """
-    A node that takes a list of PIPE_LINE_TEXT and runs the sample method on each.
+    A basic KsampleRepeat node that inherits from ttN_pipeKSampler_v2 for testing purposes.
     """
-
+    
     def __init__(self):
-        pass
+        super().__init__()  # Initialize the parent class
 
     @classmethod
     def INPUT_TYPES(cls):
-        # Call the parent class's INPUT_TYPES method to get existing inputs
+        # Inherit input types from the parent class
         parent_input_types = super().INPUT_TYPES()
 
-        # Define the input to accept a list of PIPE_LINE_TEXT and the new text list input
+        # Define basic inputs for testing
         additional_inputs = {
             "required": {
-                "pipes": ("PIPE_LINE_TEXT",),  # Accepts a list of PIPE_LINE_TEXT objects
-                "text_list": ("STRING", {"multiline": True, "placeholder": 'Enter list of strings like ["text1", "text2, text3", ...]'}),  # Add text list input
+                "text_input": ("STRING", {"multiline": False, "placeholder": 'Enter a string'}),  # Simple string input
             }
         }
 
-        # Merge the parent input types with the additional input
+        # Merge parent input types with the additional input
         merged_inputs = {
             "required": {**parent_input_types.get("required", {}), **additional_inputs.get("required", {})},
-            "optional": {**parent_input_types.get("optional", {})},
-            "hidden": {**parent_input_types.get("hidden", {})},
+            "optional": parent_input_types.get("optional", {}),
+            "hidden": parent_input_types.get("hidden", {}),
         }
 
         return merged_inputs
 
-    RETURN_TYPES = ("PIPE_LINE_TEXT", "STRING",)  # Output type is PIPE_LINE_TEXT
-    RETURN_NAMES = ("pipes", "text")  # Name of the output
-    FUNCTION = "sample"
-    OUTPUT_IS_LIST = (True)
-    INPUT_IS_LIST = (False, True)
-    CATEGORY = "🌏 tinyterra/pipe"
+    RETURN_TYPES = ("STRING",)  # Return a string for simplicity
+    RETURN_NAMES = ("text_output",)  # Name of the output
+    FUNCTION = "process_text"
 
-    def sample(self, pipes, text_list, lora_name, lora_strength, steps, cfg, sampler_name, scheduler, image_output, 
-               save_prefix, file_type, embed_workflow, denoise=1.0, optional_model=None, optional_positive=None, 
-               optional_negative=None, optional_latent=None, optional_vae=None, optional_clip=None, 
-               input_image_override=None, seed=None, adv_xyPlot=None, upscale_model_name=None, upscale_method=None, 
-               factor=None, rescale=None, percent=None, width=None, height=None, longer_side=None, crop=None, 
-               prompt=None, extra_pnginfo=None, my_unique_id=None, start_step=None, last_step=None, 
-               force_full_denoise=False, disable_noise=False):
-
-        # Check if the input is a list of pipes
-        if not isinstance(pipes, list):
-            pipes = [pipes]
-        
-        # Safely evaluate the text_list to convert it into a Python list of strings (including strings with commas)
-        try:
-            text_items = ast.literal_eval(text_list)
-            if not isinstance(text_items, list):
-                raise ValueError("The input text_list must be a list of strings.")
-        except (SyntaxError, ValueError):
-            raise ValueError('Invalid input format. Please enter a valid list of strings like ["text1", "text2, text3", ...]')
-        
-        results = []
-        text_results = []
-
-        # Iterate over pipes and text items
-        for pipe in pipes:
-            for t in text_items:
-                # Extract necessary components from the pipe
-                model = pipe.get("model", optional_model)
-                positive = pipe.get("positive", optional_positive)
-                negative = pipe.get("negative", optional_negative)
-                latent = pipe.get("samples", optional_latent)
-                vae = pipe.get("vae", optional_vae)
-                clip = pipe.get("clip", optional_clip)
-                seed_val = pipe.get("seed", seed)
-                text = pipe.get("text", text)
-
-                text = text + t
-
-                # Call the parent class's sample method
-                result = super().sample(
-                    model, lora_name, lora_strength, steps, cfg, sampler_name, scheduler, image_output, save_prefix, 
-                    file_type, embed_workflow, denoise, model, positive, negative, latent, vae, clip, input_image_override, 
-                    seed_val, adv_xyPlot, upscale_model_name, upscale_method, factor, rescale, percent, width, height, 
-                    longer_side, crop, prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id, 
-                    start_step=start_step, last_step=last_step, force_full_denoise=force_full_denoise, 
-                    disable_noise=disable_noise
-                )
-                
-                # Append each result to the results list
-                results.append(result)
-                text_results.append(text)
-
-        # Return the list of processed pipes
-        return results, text_results
+    def process_text(self, text_input):
+        """
+        A simple method that returns the input text as output.
+        """
+        return text_input,  # Return the input text unchanged
 
 
 #---------------------------------------------------------------ttN/image END-----------------------------------------------------------------------#
