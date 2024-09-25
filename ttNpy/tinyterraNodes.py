@@ -3652,7 +3652,7 @@ class RepeaterKSampler(ttN_pipeKSampler_v2):
     """
 
     def __init__(self):
-        super().__init__()  # Initialize the parent class
+        pass
 
     @classmethod
     def INPUT_TYPES(cls):
