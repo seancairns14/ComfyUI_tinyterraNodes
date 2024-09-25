@@ -3646,7 +3646,7 @@ class ttN_pipe_OUT_text:
 
 
 
-class RepeaterKSampler(ttN_pipeKSampler_v2):
+class KsampleRepeat(ttN_pipeKSampler_v2):
     """
     A node that takes a list of PIPE_LINE_TEXT and runs the sample method on each.
     """
@@ -3792,7 +3792,7 @@ NODE_CLASS_MAPPINGS = {
     "ttN advanced xyPlot": ttN_advanced_XYPlot,
     "ttN PipeInText": ttN_pipe_IN_text,
     "ttN PipeOutText": ttN_pipe_OUT_text,
-    "RepeaterKSampler": RepeaterKSampler,
+    "ttN PipeKsamplerRepeat": KsampleRepeat,
 
 #   "ttN advPlot merge": ttN_advPlot_merge,
     "ttN advPlot range": ttN_advPlot_range,
@@ -3846,7 +3846,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ttN pipeLoraStack": "pipeLoraStack",
     "ttN PipeInText": "PipeInText",
     "ttN PipeOutText": "PipeOutText",
-    "RepeaterKSampler": "RepeaterKSamplerPipe",
+    "ttN PipeKsamplerRepeat": "PipeKsampleRepeat",
 
     #ttN/xyPlot
     "ttN advanced xyPlot": "advanced xyPlot",
