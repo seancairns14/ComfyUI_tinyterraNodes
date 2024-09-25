@@ -3845,7 +3845,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ttN pipeLoraStack": "pipeLoraStack",
     "ttN PipeInText": "PipeInText",
     "ttN PipeOutText": "PipeOutText",
-    "RepeaterKSampler": "Repeater_KSampler_Node",
+    "RepeaterKSampler": "RepeaterKSamplerPipe",
 
     #ttN/xyPlot
     "ttN advanced xyPlot": "advanced xyPlot",
