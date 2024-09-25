@@ -3677,13 +3677,19 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
 
     RETURN_TYPES = ("PIPE_LINE", "STRING",)  # Output type is PIPE_LINE_TEXT
     RETURN_NAMES = ("pipe", "text")  # Name of the output
-    FUNCTION = "sample"
+    FUNCTION = "repeatsample"
 
-    def sample(self, text_input):
-        """
-        A simple method that returns the input text as output.
-        """
-        return text_input,  # Return the input text unchanged
+    def sample(self, pipe, text_list,
+               lora_name, lora_strength,
+               steps, cfg, sampler_name, scheduler, image_output, save_prefix, file_type, embed_workflow, denoise=1.0, 
+               optional_model=None, optional_positive=None, optional_negative=None, optional_latent=None, optional_vae=None, optional_clip=None, input_image_override=None,
+               seed=None, adv_xyPlot=None, upscale_model_name=None, upscale_method=None, factor=None, rescale=None, percent=None, width=None, height=None, longer_side=None, crop=None,
+               prompt=None, extra_pnginfo=None, my_unique_id=None, start_step=None, last_step=None, force_full_denoise=False, disable_noise=False):
+        
+        return text_list
+        
+
+
 
 
 #---------------------------------------------------------------ttN/image END-----------------------------------------------------------------------#
