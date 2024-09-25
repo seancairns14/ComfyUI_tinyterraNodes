@@ -3681,6 +3681,7 @@ class RepeaterKSampler(ttN_pipeKSampler_v2):
     FUNCTION = "sample"
     OUTPUT_IS_LIST = (True)
     INPUT_IS_LIST = (False, True)
+    CATEGORY = "🌏 tinyterra/pipe"
 
     def sample(self, pipes, text_list, lora_name, lora_strength, steps, cfg, sampler_name, scheduler, image_output, 
                save_prefix, file_type, embed_workflow, denoise=1.0, optional_model=None, optional_positive=None, 
