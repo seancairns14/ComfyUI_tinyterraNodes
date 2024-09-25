@@ -3577,7 +3577,7 @@ class ttN_pipe_IN_text:
             "hidden": {"ttNnodeVersion": ttN_pipe_IN_text.version},
         }
 
-    RETURN_TYPES = ("PIPE_LINE_TEXT", )
+    RETURN_TYPES = ("PIPE_LINE", )
     RETURN_NAMES = ("pipe", )
     FUNCTION = "flush"
 
@@ -3618,12 +3618,12 @@ class ttN_pipe_OUT_text:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "pipe": ("PIPE_LINE_TEXT",),
+                "pipe": ("PIPE_LINE",),
             },
             "hidden": {"ttNnodeVersion": ttN_pipe_OUT_text.version},
         }
 
-    RETURN_TYPES = ("MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "IMAGE", "INT", "STRING", "PIPE_LINE_TEXT",)
+    RETURN_TYPES = ("MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "IMAGE", "INT", "STRING", "PIPE_LINE",)
     RETURN_NAMES = ("model", "pos", "neg", "latent", "vae", "clip", "image", "seed", "text", "pipe")
     FUNCTION = "flush"
 
@@ -3662,7 +3662,6 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
         # Define the input to accept a list of PIPE_LINE_TEXT and the new text list input
         additional_inputs = {
             "required": {
-                "pipes": ("PIPE_LINE_TEXT",),  # Accepts a list of PIPE_LINE_TEXT objects
                 "text_list": ("STRING", {"multiline": True, "placeholder": 'Enter list of strings like ["text1", "text2, text3", ...]'}),  # Add text list input
             }
         }
@@ -3676,10 +3675,9 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
 
         return merged_inputs
 
-    RETURN_TYPES = ("PIPE_LINE_TEXT", "STRING",)  # Output type is PIPE_LINE_TEXT
-    RETURN_NAMES = ("pipes", "text")  # Name of the output
+    RETURN_TYPES = ("PIPE_LINE", "STRING",)  # Output type is PIPE_LINE_TEXT
+    RETURN_NAMES = ("pipe", "text")  # Name of the output
     FUNCTION = "sample"
-    FUNCTION = "process_text"
 
     def sample(self, text_input):
         """
