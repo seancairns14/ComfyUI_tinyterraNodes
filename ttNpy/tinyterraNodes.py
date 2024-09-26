@@ -3623,7 +3623,7 @@ class ttN_pipe_OUT_text:
             "hidden": {"ttNnodeVersion": ttN_pipe_OUT_text.version},
         }
 
-    RETURN_TYPES = ("MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "IMAGE", "INT", "PIPE_LINE",)
+    RETURN_TYPES = ("MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "IMAGE", "INT", "STRING", "PIPE_LINE",)
     RETURN_NAMES = ("model", "pos", "neg", "latent", "vae", "clip", "image", "seed", "pipe")
     FUNCTION = "flush"
 
@@ -3642,7 +3642,7 @@ class ttN_pipe_OUT_text:
         text = pipe.get("text", "")
 
         # Return all components, including the full pipe object
-        return model, pos, neg, latent, vae, clip, image, seed, pipe
+        return model, pos, neg, latent, vae, clip, image, seed, text, pipe
 
 
 
@@ -3687,7 +3687,7 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
                prompt=None, extra_pnginfo=None, my_unique_id=None, start_step=None, last_step=None, force_full_denoise=False, disable_noise=False):
         text_list = text_list
         
-        return text_list
+        return pipe, text_list
         
 
 
