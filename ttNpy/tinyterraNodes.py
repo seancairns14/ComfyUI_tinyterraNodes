@@ -3687,6 +3687,15 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
                prompt=None, extra_pnginfo=None, my_unique_id=None, start_step=None, last_step=None, force_full_denoise=False, disable_noise=False):
         
 
+        # Safely evaluate the text_list to convert it into a Python list of strings (including strings with commas)
+        try:
+            text_items = ast.literal_eval(text_list)
+            if not isinstance(text_items, list):
+                raise ValueError("The input text_list must be a list of strings.")
+        except (SyntaxError, ValueError):
+            raise ValueError('Invalid input format. Please enter a valid list of strings like ["text1", "text2, text3", ...]')
+        
+
         text = f"{text_list[0]}, {pipe.get('text', '')}" 
         return pipe, text
         
