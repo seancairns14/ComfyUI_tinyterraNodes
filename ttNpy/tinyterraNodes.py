@@ -3687,7 +3687,7 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
                prompt=None, extra_pnginfo=None, my_unique_id=None, start_step=None, last_step=None, force_full_denoise=False, disable_noise=False):
         
 
-        text = text_list[0], + pipe.get("text", "")
+        text = f"{text_list[0]}, {pipe.get('text', '')}" 
         return pipe, text
         
 
