@@ -3704,7 +3704,7 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
         for p in pipe:
             for t in text_items:
                 # Concatenate the first element of text_items with the 'text' from pipe
-                text = f"{t}, {p.get('text', '')}"
+                text = f"{p.get('text', '')}, {t}"
                 p["text"] = text
 
                 results.append(p)
