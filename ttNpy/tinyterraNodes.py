@@ -23,7 +23,6 @@ from pathlib import Path
 from urllib.request import urlopen
 from collections import OrderedDict
 from typing import Dict, List, Optional, Tuple, Union, Any
-import ast
 
 import numpy as np
 import torch
@@ -3689,7 +3688,7 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
 
         # Safely evaluate the text_list to convert it into a Python list of strings (including strings with commas)
         try:
-            text_items = ast.literal_eval(text_list)
+            text_items = json.loads(f"{text_items}")
             if not isinstance(text_items, list):
                 raise ValueError("The input text_list must be a list of strings.")
         except (SyntaxError, ValueError):
