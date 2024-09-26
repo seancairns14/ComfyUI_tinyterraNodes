@@ -3623,8 +3623,8 @@ class ttN_pipe_OUT_text:
             "hidden": {"ttNnodeVersion": ttN_pipe_OUT_text.version},
         }
 
-    RETURN_TYPES = ("MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "IMAGE", "INT", "STRING", "PIPE_LINE",)
-    RETURN_NAMES = ("model", "pos", "neg", "latent", "vae", "clip", "image", "seed", "text", "pipe")
+    RETURN_TYPES = ("MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "IMAGE", "INT", "PIPE_LINE",)
+    RETURN_NAMES = ("model", "pos", "neg", "latent", "vae", "clip", "image", "seed", "pipe")
     FUNCTION = "flush"
 
     CATEGORY = "🌏 tinyterra/legacy"
@@ -3642,7 +3642,7 @@ class ttN_pipe_OUT_text:
         text = pipe.get("text", "")
 
         # Return all components, including the full pipe object
-        return model, pos, neg, latent, vae, clip, image, seed, text, pipe
+        return model, pos, neg, latent, vae, clip, image, seed, pipe
 
 
 
