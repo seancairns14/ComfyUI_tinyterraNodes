@@ -3686,6 +3686,10 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
                prompt=None, extra_pnginfo=None, my_unique_id=None, start_step=None, last_step=None, force_full_denoise=False, disable_noise=False):
         
 
+        # Check if the input is a list of pipes
+        if not isinstance(pipe, list):
+            pipe = [pipe]
+
         # Safely evaluate the text_list to convert it into a Python list of strings (including strings with commas)
         try:
             # json.loads requires valid JSON, so the input must be in the form: '["string1", "string2, string3"]'
@@ -3695,9 +3699,19 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
         except (SyntaxError, ValueError):
             raise ValueError('Invalid input format. Please enter a valid list of strings like ["text1", "text2, text3", ...]')
 
-        # Concatenate the first element of text_items with the 'text' from pipe
-        text = f"{text_items[0]}, {pipe.get('text', '')}"
-        return pipe, text
+        results = []
+        texts = []
+        for p in pipe:
+            for t in text_items:
+                # Concatenate the first element of text_items with the 'text' from pipe
+                text = f"{t}, {p.get('text', '')}"
+                p["text"] = text
+
+                results.append(p)
+                texts.append(text)
+
+        
+        return results, texts
         
 
 
