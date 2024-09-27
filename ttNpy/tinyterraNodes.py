@@ -3629,7 +3629,8 @@ class ttN_pipe_OUT_text:
 
     CATEGORY = "🌏 tinyterra/legacy"
     
-    
+    INPUT_IS_LIST = (False, True)
+    OUTPUT_IS_LIST = (False, True)
 
 
     def flush(self, pipe):
@@ -3652,7 +3653,7 @@ class ttN_pipe_OUT_text:
             return model, pos, neg, latent, vae, clip, image, seed, text, pipe
 
         for p in pipe:
-            yield self.process_single(p)
+            return self.process_single(p)
 
     
 
