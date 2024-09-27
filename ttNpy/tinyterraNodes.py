@@ -3625,6 +3625,8 @@ class ttN_pipe_OUT_text:
     RETURN_TYPES = ("MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "IMAGE", "INT", "STRING", "PIPE_LINE",)
     RETURN_NAMES = ("model", "pos", "neg", "latent", "vae", "clip", "image", "seed", "pipe")
     FUNCTION = "flush"
+    INPUT_IS_LIST = (False, True)
+    OUTPUT_IS_LIST = (False, True)
 
     CATEGORY = "🌏 tinyterra/legacy"
     
