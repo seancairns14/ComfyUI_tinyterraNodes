@@ -3695,7 +3695,7 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
         # Safely evaluate the text_list to convert it into a Python list of strings (including strings with commas)
         try:
             # json.loads requires valid JSON, so the input must be in the form: '["string1", "string2, string3"]'
-            text_items = json.loads(text_list)
+            text_items = json.loads(f"{text_list}")
             if not isinstance(text_items, list) or not all(isinstance(item, str) for item in text_items):
                 raise ValueError("The input text_list must be a valid JSON array of strings.")
         except (SyntaxError, ValueError):
