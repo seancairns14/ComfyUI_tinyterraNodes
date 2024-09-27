@@ -3653,7 +3653,7 @@ class ttN_pipe_OUT_text:
             return model, pos, neg, latent, vae, clip, image, seed, text, pipe
 
         for p in pipe:
-            return self.process_single(p)
+            return process_single(p)
 
     
 
