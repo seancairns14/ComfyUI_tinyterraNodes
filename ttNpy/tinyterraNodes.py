@@ -3609,51 +3609,55 @@ class ttN_pipe_IN_text:
 
 class ttN_pipe_OUT_text:
     version = '1.1.0'
-    
+
     def __init__(self):
         pass
-    
+
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
-                "pipe": ("PIPE_LINE",),
+                "pipe": ("PIPE_LINE",),  # Expecting a pipeline as input
             },
             "hidden": {"ttNnodeVersion": ttN_pipe_OUT_text.version},
         }
 
     RETURN_TYPES = ("MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "IMAGE", "INT", "STRING", "PIPE_LINE",)
-    RETURN_NAMES = ("model", "pos", "neg", "latent", "vae", "clip", "image", "seed", "text" "pipe")
+    RETURN_NAMES = ("model", "pos", "neg", "latent", "vae", "clip", "image", "seed", "text", "pipe")
     FUNCTION = "flush"
-    
 
     CATEGORY = "🌏 tinyterra/legacy"
-    
+
     INPUT_IS_LIST = (False, True)
     OUTPUT_IS_LIST = (False, True)
 
-
     def flush(self, pipe):
+        # Check if the input is a list of pipes
+        if not isinstance(pipe, list):
+            pipe = [pipe]  # Ensure pipe is a list
 
-        def process_single(pipe):
-        
-        
+        def process_single(pipe_item):
             # Retrieve values from the pipe, using default values to avoid KeyErrors
-            model = pipe.get("model", None)
-            pos = pipe.get("positive", None)
-            neg = pipe.get("negative", None)
-            latent = pipe.get("samples", None)
-            vae = pipe.get("vae", None)
-            clip = pipe.get("clip", None)
-            image = pipe.get("images", None)
-            seed = pipe.get("seed", 0)
-            text = pipe.get("text", "")
+            model = pipe_item.get("model", None)
+            pos = pipe_item.get("positive", None)
+            neg = pipe_item.get("negative", None)
+            latent = pipe_item.get("samples", None)
+            vae = pipe_item.get("vae", None)
+            clip = pipe_item.get("clip", None)
+            image = pipe_item.get("images", None)
+            seed = pipe_item.get("seed", 0)
+            text = pipe_item.get("text", "")
 
             # Return all components, including the full pipe object
-            return model, pos, neg, latent, vae, clip, image, seed, text, pipe
+            return model, pos, neg, latent, vae, clip, image, seed, text, pipe_item
 
-        for p in pipe:
-            return process_single(p)
+        # Process each pipe in the list and collect results
+        results = [process_single(p) for p in pipe]
+
+        # Unpack results into separate lists for each return type
+        models, pos_list, neg_list, latents, vaes, clips, images, seeds, texts, pipes = zip(*results)
+
+        return list(models), list(pos_list), list(neg_list), list(latents), list(vaes), list(clips), list(images), list(seeds), list(texts), list(pipes)
 
     
 
