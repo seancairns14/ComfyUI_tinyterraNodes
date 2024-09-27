@@ -3637,19 +3637,23 @@ class ttN_pipe_OUT_text:
             pipe = [pipe]  # Ensure pipe is a list
 
         def process_single(pipe_item):
-            # Retrieve values from the pipe, using default values to avoid KeyErrors
-            model = pipe_item.get("model", None)
-            pos = pipe_item.get("positive", None)
-            neg = pipe_item.get("negative", None)
-            latent = pipe_item.get("samples", None)
-            vae = pipe_item.get("vae", None)
-            clip = pipe_item.get("clip", None)
-            image = pipe_item.get("images", None)
-            seed = pipe_item.get("seed", 0)
-            text = pipe_item.get("text", "")
+            # Ensure that pipe_item is a dictionary before trying to access .get()
+            if isinstance(pipe_item, dict):
+                # Retrieve values from the pipe, using default values to avoid KeyErrors
+                model = pipe_item.get("model", None)
+                pos = pipe_item.get("positive", None)
+                neg = pipe_item.get("negative", None)
+                latent = pipe_item.get("samples", None)
+                vae = pipe_item.get("vae", None)
+                clip = pipe_item.get("clip", None)
+                image = pipe_item.get("images", None)
+                seed = pipe_item.get("seed", 0)
+                text = pipe_item.get("text", "")
 
-            # Return all components, including the full pipe object
-            return model, pos, neg, latent, vae, clip, image, seed, text, pipe_item
+                # Return all components, including the full pipe object
+                return model, pos, neg, latent, vae, clip, image, seed, text, pipe_item
+            else:
+                raise TypeError(f"Expected a dict-like object but got {type(pipe_item)}")
 
         # Process each pipe in the list and collect results
         results = [process_single(p) for p in pipe]
@@ -3658,6 +3662,7 @@ class ttN_pipe_OUT_text:
         models, pos_list, neg_list, latents, vaes, clips, images, seeds, texts, pipes = zip(*results)
 
         return list(models), list(pos_list), list(neg_list), list(latents), list(vaes), list(clips), list(images), list(seeds), list(texts), list(pipes)
+
 
     
 
