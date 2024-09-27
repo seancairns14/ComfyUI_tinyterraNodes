@@ -3677,6 +3677,8 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
     RETURN_TYPES = ("PIPE_LINE", "STRING",)  # Output type is PIPE_LINE_TEXT
     RETURN_NAMES = ("pipe", "text")  # Name of the output
     FUNCTION = "sample"
+    INPUT_IS_LIST = (False, True)
+    OUTPUT_IS_LIST = (False, True)
 
     def sample(self, pipe, text_list,
                lora_name, lora_strength,
