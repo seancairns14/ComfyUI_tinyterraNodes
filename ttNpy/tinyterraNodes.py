@@ -3551,6 +3551,8 @@ class ttN_modelScale:
         return {"ui": {"images": results}, 
                 "result": ({"samples":t}, s,)}
     
+import json  # Ensure json is imported
+
 class ttN_pipe_IN_text:
     version = '1.1.0'
     
@@ -3583,25 +3585,21 @@ class ttN_pipe_IN_text:
     CATEGORY = "🌏 tinyterra/legacy"
 
     def flush(self, model, pos=0, neg=0, latent=0, vae=0, clip=0, image=0, seed=0, text=""):
-        # Create the pipeline dictionary to store all components
         pipe = {
             "model": model,
             "positive": pos,
             "negative": neg,
             "vae": vae,
             "clip": clip,
-
-            "refiner_model": None,  # Placeholder for potential refinement
+            "refiner_model": None,
             "refiner_positive": None,
             "refiner_negative": None,
             "refiner_vae": None,
             "refiner_clip": None,
-
             "samples": latent,
             "images": image,
             "seed": seed,
             "text": text,
-
             "loader_settings": {}
         }
         return (pipe, )
@@ -3617,7 +3615,7 @@ class ttN_pipe_OUT_text:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "pipe": ("PIPE_LINE",),  # Expecting a pipeline as input
+                "pipe": ("PIPE_LINE",),
             },
             "hidden": {"ttNnodeVersion": ttN_pipe_OUT_text.version},
         }
@@ -3629,14 +3627,11 @@ class ttN_pipe_OUT_text:
     CATEGORY = "🌏 tinyterra/legacy"
 
     def flush(self, pipe):
-        # Check if the input is a list of pipes
         if not isinstance(pipe, list):
-            pipe = [pipe]  # Ensure pipe is a list
+            pipe = [pipe]
 
         def process_single(pipe_item):
-            # Ensure that pipe_item is a dictionary before trying to access .get()
             if isinstance(pipe_item, dict):
-                # Retrieve values from the pipe, using default values to avoid KeyErrors
                 model = pipe_item.get("model", None)
                 pos = pipe_item.get("positive", None)
                 neg = pipe_item.get("negative", None)
@@ -3647,75 +3642,44 @@ class ttN_pipe_OUT_text:
                 seed = pipe_item.get("seed", 0)
                 text = pipe_item.get("text", "")
 
-                # Return all components, including the full pipe object
                 return model, pos, neg, latent, vae, clip, image, seed, text, pipe_item
             else:
                 raise TypeError(f"Expected a dict-like object but got {type(pipe_item)}")
 
-        # Process each pipe in the list and collect results
         results = [process_single(p) for p in pipe]
-
-        # Unpack results into separate lists for each return type
         models, pos_list, neg_list, latents, vaes, clips, images, seeds, texts, pipes = zip(*results)
 
         return list(models), list(pos_list), list(neg_list), list(latents), list(vaes), list(clips), list(images), list(seeds), list(texts), list(pipes)
 
 
-    
-
-
-
 class KsampleRepeat(ttN_pipeKSampler_v2):
-    """
-    A basic KsampleRepeat node that inherits from ttN_pipeKSampler_v2 for testing purposes.
-    """
-    
     def __init__(self):
-        super().__init__()  # Initialize the parent class
+        super().__init__()
 
     @classmethod
     def INPUT_TYPES(cls):
-        # Call the parent class's INPUT_TYPES method to get existing inputs
         parent_input_types = super().INPUT_TYPES()
-
-        # Define the input to accept a list of PIPE_LINE_TEXT and the new text list input
         additional_inputs = {
             "required": {
-                "text_list": ("STRING", {"multiline": True, "placeholder": 'Enter list of strings like ["text1", "text2, text3", ...]'}),  # Add text list input
+                "text_list": ("STRING", {"multiline": True, "placeholder": 'Enter list of strings like ["text1", "text2, text3", ...]'}),
             }
         }
-
-        # Merge the parent input types with the additional input
         merged_inputs = {
             "required": {**parent_input_types.get("required", {}), **additional_inputs.get("required", {})},
             "optional": {**parent_input_types.get("optional", {})},
             "hidden": {**parent_input_types.get("hidden", {})},
         }
-
         return merged_inputs
 
-    RETURN_TYPES = ("PIPE_LINE", "STRING",)  # Output type is PIPE_LINE_TEXT
-    RETURN_NAMES = ("pipe", "text")  # Name of the output
+    RETURN_TYPES = ("PIPE_LINE", "STRING",)
+    RETURN_NAMES = ("pipe", "text")
     FUNCTION = "sample"
 
-
-    def sample(self, pipe, text_list,
-               lora_name, lora_strength,
-               steps, cfg, sampler_name, scheduler, image_output, save_prefix, file_type, embed_workflow, denoise=1.0, 
-               optional_model=None, optional_positive=None, optional_negative=None, optional_latent=None, optional_vae=None, optional_clip=None, input_image_override=None,
-               seed=None, adv_xyPlot=None, upscale_model_name=None, upscale_method=None, factor=None, rescale=None, percent=None, width=None, height=None, longer_side=None, crop=None,
-               prompt=None, extra_pnginfo=None, my_unique_id=None, start_step=None, last_step=None, force_full_denoise=False, disable_noise=False):
-        
-
-        # Check if the input is a list of pipes
+    def sample(self, pipe, text_list, **kwargs):
         if not isinstance(pipe, list):
             pipe = [pipe]
 
-        
-
-        # Safely evaluate the text_list to convert it into a Python list of strings (including strings with commas)
         try:
-            # json.loads requires valid JSON, so the input must be in the form: '["string1", "string2, string3"]'
             text_items = json.loads(text_list[0])
             if not isinstance(text_items, list) or not all(isinstance(item, str) for item in text_items):
                 raise ValueError(f"The input text_list must be a valid JSON array of strings.")
@@ -3726,15 +3690,14 @@ class KsampleRepeat(ttN_pipeKSampler_v2):
         texts = []
         for p in pipe:
             for t in text_items:
-                # Concatenate the first element of text_items with the 'text' from pipe
                 text = f"{p.get('text', '')}, {t}"
                 p["text"] = text
 
                 results.append(p)
                 texts.append(text)
 
-        
         return results, texts
+
         
 
 
